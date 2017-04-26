@@ -9,6 +9,8 @@
 
 ## About Laravel
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/lukasjuhas/discogs-loves-spotify.svg?token=22b7b7f4ea3d5136559cc3ec531ec401288a986aa27708a077b5b2fc4d881a93&ts=1493209252807)](https://greenkeeper.io/)
+
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
 
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
