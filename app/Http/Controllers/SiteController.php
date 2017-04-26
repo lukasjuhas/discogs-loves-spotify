@@ -96,4 +96,70 @@ class SiteController extends Controller
         return redirect('https://discogs.com/oauth/authorize?oauth_token=' . $params['oauth_token']);
 
     }
+
+    public function getCollection()
+    {
+        $username = $this->getUserName();
+
+        $stack = HandlerStack::create();
+
+        $middleware = new Oauth1([
+            'consumer_key'    => env('DISCOGS_KEY'),
+            'consumer_secret' => env('DISCOGS_SECRET'),
+            'token'           => session('discogs.oauth_token'),
+            'token_secret'    => session('discogs.oauth_token_secret'),
+        ]);
+
+        $stack->push($middleware);
+
+        $config = [
+            'handler' => $stack,
+            'headers' => [
+                'User-Agent' => 'discogslovesspotify/1.0.0 +http://discogslovesspotify.dev',
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
+        ];
+
+        $client = new Client($config);
+
+        $response = $client->request('GET', 'https://api.discogs.com/users/' . $username . '/collection', [
+            'auth' => 'oauth',
+        ]);
+
+        $responseBody = json_decode($response->getBody());
+
+        return $responseBody;
+    }
+
+    public function getUserName()
+    {
+        $stack = HandlerStack::create();
+
+        $middleware = new Oauth1([
+            'consumer_key'    => env('DISCOGS_KEY'),
+            'consumer_secret' => env('DISCOGS_SECRET'),
+            'token'           => session('discogs.oauth_token'),
+            'token_secret'    => session('discogs.oauth_token_secret'),
+        ]);
+
+        $stack->push($middleware);
+
+        $config = [
+            'handler' => $stack,
+            'headers' => [
+                'User-Agent' => 'discogslovesspotify/1.0.0 +http://discogslovesspotify.dev',
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
+        ];
+
+        $client = new Client($config);
+
+        $response = $client->request('GET', 'https://api.discogs.com/oauth/identity', [
+            'auth' => 'oauth',
+        ]);
+
+        $responseBody = json_decode($response->getBody());
+
+        return $responseBody->username;
+    }
 }
