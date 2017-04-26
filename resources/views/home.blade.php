@@ -3,6 +3,7 @@
 @section('content')
     <section class="section section--vcenter">
         <div class="content">
+            {{ $username }}
             <nav class="nav nav--steps">
                 <ul>
                     <li>
