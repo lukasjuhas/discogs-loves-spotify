@@ -12,3 +12,5 @@
 */
 
 Route::get('/', 'SiteController@index');
+
+Route::get('/discogs', 'SiteController@discogs');

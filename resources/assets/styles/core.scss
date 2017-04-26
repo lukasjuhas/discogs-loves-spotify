@@ -2,6 +2,7 @@
 @import './config/mixins';
 @import './core/reset';
 @import './core/helpers';
+@import './components/section';
 
 html {
   background-color: $col-brand;
@@ -12,6 +13,11 @@ body {
   height: 100%;
   background-color: $col-brand;
   background: linear-gradient( 110deg, #0091E5, #E42149, #FFF146 );
+  position: relative;
+}
+
+.app {
+  min-height: 100%;
   position: relative;
 }
 

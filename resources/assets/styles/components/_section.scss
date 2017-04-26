@@ -1,0 +1,22 @@
+.section {
+
+}
+
+.section--vcenter {
+  min-height: 100vh;
+  text-align: center;
+  white-space: nowrap;
+
+  &:before {
+    content: ' ';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+  }
+
+  .content {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: inherit;
+  }
+}
