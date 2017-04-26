@@ -14,3 +14,5 @@
 Route::get('/', 'SiteController@index');
 
 Route::get('/discogs', 'SiteController@discogs');
+
+Route::get('/spotify', 'SiteController@spotify');

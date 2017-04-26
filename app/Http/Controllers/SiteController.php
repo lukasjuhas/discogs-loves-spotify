@@ -3,19 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Subscriber\Oauth\Oauth1;
-
 use Services\DiscogsService as Discogs;
+use Services\SpotifyService as Spotify;
 
 class SiteController extends Controller
 {
+    /**
+     * constructor
+     */
     public function __construct()
     {
         $this->discogs = app(Discogs::class);
+        $this->spotify = app(Spotify::class);
     }
 
+    /**
+     * the index page
+     * @return [type] [description]
+     */
     public function index()
     {
         $this->discogs->handleAccessToken();
@@ -25,8 +30,17 @@ class SiteController extends Controller
         return view('home', compact('username'));
     }
 
+    /**
+     * request discogs authentication
+     * @return mixed
+     */
     public function discogs()
     {
         return $this->discogs->requestToken();
+    }
+
+    public function spotify()
+    {
+        return $this->spotify->requestToken();
     }
 }
