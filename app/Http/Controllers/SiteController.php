@@ -24,8 +24,11 @@ class SiteController extends Controller
     public function index()
     {
         $this->discogs->handleAccessToken();
+        $this->spotify->handleAccessToken();
 
         $username = $this->discogs->getUserName();
+
+        // dd($this->spotify->getAlbums());
 
         return view('home', compact('username'));
     }
