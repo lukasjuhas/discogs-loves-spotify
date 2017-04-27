@@ -41,43 +41,66 @@ class SpotifyService
             'urlAccessToken'          => $this->token_url,
             'urlResourceOwnerDetails' => '',
         ]);
-
-        $this->token = '';
     }
 
     public function requestToken()
     {
-        if(!isset($_GET['code'])) {
-            $authorizationUrl = $this->provider->getAuthorizationUrl();
-            $authorizationUrl = $authorizationUrl . '&scope=' . urlencode('user-library-read user-library-modify');
-            return redirect($authorizationUrl);
-        }
+        $authorizationUrl = $this->provider->getAuthorizationUrl();
+        $authorizationUrl = $authorizationUrl . '&scope=' . urlencode('user-library-read user-library-modify');
+        return redirect($authorizationUrl);
     }
 
-    public function handleAccessToken() {
-        if(isset($_GET['code'])) {
-            try {
-                // Try to get an access token using the authorization code grant.
-                $accessToken = $this->provider->getAccessToken('authorization_code', [
-                    'code' => $_GET['code']
-                ]);
+    public function handleCode()
+    {
+        if (isset($_GET['code'])) {
+            return session([
+                'spotify' => [
+                    'code' => $_GET['code'],
+                ]
+            ]);
 
-
-                // return redirect('/');
-            } catch (IdentityProviderException $e) {
-                // Failed to get the access token or user details.
-                exit($e->getMessage());
-            }
+            return $_GET['code'];
         }
 
-        $existingAccessToken = $accessToken;
+        return session('spotify.code');
+    }
 
-        if ($existingAccessToken->hasExpired()) {
+    public function handleAccessToken()
+    {
+        // if(!session('spotify.code')) {
+            // $this->requestToken();
+        // }
+
+        $accessToken = $this->getAccessToken();
+
+        // if access token has expired, refresh it
+        if ($accessToken->hasExpired()) {
             $accessToken = $this->provider->getAccessToken('refresh_token', [
-                'refresh_token' => $existingAccessToken->getRefreshToken()
+                'refresh_token' => $accessToken->getRefreshToken()
             ]);
         }
 
+        return $accessToken;
+    }
+
+    public function getAccessToken()
+    {
+        try {
+            // Try to get an access token using the authorization code grant.
+            $accessToken = $this->provider->getAccessToken('authorization_code', [
+                'code' => session('spotify.code'),
+            ]);
+
+            return $accessToken;
+        } catch (IdentityProviderException $e) {
+            // Failed to get the access token or user details.
+            exit($e->getMessage());
+        }
+    }
+
+    public function getAlbums()
+    {
+        $accessToken = $this->handleAccessToken();
         $response = $this->client()->request('GET', 'v1/me/albums', [
             'limit' => 50,
             'headers' => [
@@ -86,19 +109,6 @@ class SpotifyService
         ]);
 
         return print_r($this->prase_reponse($response));
-    }
-
-    public function getAlbums()
-    {
-        $this->handleAccessToken();
-
-        $response = $this->client()->request('GET', 'v1/me/albums', [
-            'limit' => 50,
-        ])->json();
-        return $request->getBody();
-        $parsedResponse = $this->prase_reponse($response);
-
-        return $parsedResponse;
     }
 
     /**
