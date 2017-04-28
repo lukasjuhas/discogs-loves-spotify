@@ -98,17 +98,41 @@ class SpotifyService
         }
     }
 
-    public function getAlbums()
+    public function searchAlbums($album)
     {
         $accessToken = $this->handleAccessToken();
-        $response = $this->client()->request('GET', 'v1/me/albums', [
-            'limit' => 50,
+
+        $query = 'album:' . $album['title'] . ' ' . 'artist:' . $album['artist'];
+
+        $request = $this->client()->request('GET', 'v1/search', [
+            'query' => [
+                'q' => $query,
+                'type' => 'album,artist'
+            ],
             'headers' => [
                 'Authorization' => sprintf('Bearer %s', $accessToken),
             ]
         ]);
 
-        return print_r($this->prase_reponse($response));
+        $response = $this->prase_reponse($request);
+        return $response;
+        return count($response['albums']['items']) ? $response['albums']['items'] : [];
+    }
+
+    public function getAlbums()
+    {
+        $accessToken = $this->handleAccessToken();
+        $request = $this->client()->request('GET', 'v1/me/albums', [
+            'query' => [
+              'limit' => 50,
+            ],
+            'headers' => [
+                'Authorization' => sprintf('Bearer %s', $accessToken),
+            ]
+        ]);
+
+        $response = $this->prase_reponse($request);
+        return isset($response['items']) ? $response['items'] : $response;
     }
 
     /**

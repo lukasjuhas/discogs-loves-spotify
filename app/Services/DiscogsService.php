@@ -154,7 +154,7 @@ class DiscogsService
      * @param mixed $response
      * @return array
      */
-    private function prase_reponse($response)
+    private function parse_response($response)
     {
         if (!$response) {
             return false;
@@ -175,7 +175,7 @@ class DiscogsService
             'auth' => 'oauth',
         ]);
 
-        $parsedResponse = $this->prase_reponse($response);
+        $parsedResponse = $this->parse_response($response);
 
         return $parsedResponse['username'];
     }
@@ -184,15 +184,39 @@ class DiscogsService
      * get user's collection
      * @return array
      */
-    public function userCollection()
+    private function userCollection($page = 1)
     {
         $response = $this->client([
             'token' => session('discogs.oauth_token'),
             'token_secret' => session('discogs.oauth_token_secret'),
         ])->request('GET', 'users/' . $this->getUserName() . '/collection', [
             'auth' => 'oauth',
+            'query' => [
+                'page' => $page,
+            ]
         ]);
 
         return $this->parse_response($response);
+    }
+
+    /**
+     * get list of user albums (formatted)
+     * @return array
+     */
+    public function getUserAlbums()
+    {
+        $albums = [];
+        $collection = $this->userCollection();
+        for ($k = 0 ; $k < $collection['pagination']['pages']; $k++) {
+            if ($k > 0) {
+                $collection = $this->userCollection($k + 1);
+            }
+            foreach ($collection['releases'] as $key => $release) :
+                $albums[$key]['title'] = $release['basic_information']['title'];
+                $albums[$key]['artist'] = $release['basic_information']['artists'][0]['name'];
+            endforeach;
+        }
+
+        return $albums;
     }
 }

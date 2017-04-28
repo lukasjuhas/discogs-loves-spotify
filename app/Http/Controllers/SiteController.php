@@ -26,8 +26,29 @@ class SiteController extends Controller
         $this->discogs->handleAccessToken();
         $this->spotify->handleCode();
 
-        $username = $this->discogs->getUserName();
-        dd($this->spotify->getAlbums());
+        $album_ids = [];
+        $artist_ids = [];
+        $albums = $this->discogs->getUserAlbums();
+        // dd($albums);
+        $search = $this->spotify->searchAlbums($albums[10]);
+        dd($search);
+        foreach($albums as $album) {
+            $search = $this->spotify->searchAlbums($album);
+            if(isset($search[0])) {
+                $album_ids[] = $search[0]['id'];
+                $artist_ids[] = $search[0]['artists'][0]['id'];
+            }
+
+            sleep(1);
+        }
+
+        print_r($album_ids);
+        print_r($artist_ids);
+        die();
+
+        // $username = $this->discogs->getUserName();
+        // print_r($this->spotify->getAlbums());
+        // die();
 
         return view('home', compact('username'));
     }
