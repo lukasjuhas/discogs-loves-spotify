@@ -207,13 +207,15 @@ class DiscogsService
     {
         $albums = [];
         $collection = $this->userCollection();
+        $generalKey = 0;
         for ($k = 0 ; $k < $collection['pagination']['pages']; $k++) {
             if ($k > 0) {
                 $collection = $this->userCollection($k + 1);
             }
             foreach ($collection['releases'] as $key => $release) :
-                $albums[$key]['title'] = $release['basic_information']['title'];
-                $albums[$key]['artist'] = $release['basic_information']['artists'][0]['name'];
+                $albums[$generalKey]['title'] = $release['basic_information']['title'];
+                $albums[$generalKey]['artist'] = $release['basic_information']['artists'][0]['name'];
+                $generalKey++;
             endforeach;
         }
 
