@@ -15,7 +15,6 @@ Route::get('/', 'SiteController@index');
 
 Route::get('/discogs', 'SiteController@discogs');
 
-
 Route::get('/spotify', 'SiteController@spotify');
 Route::get('/spotify/authorise', 'SiteController@spotifyAuthorise');
 Route::get('/spotify/callback', 'SiteController@spotifyCallback');

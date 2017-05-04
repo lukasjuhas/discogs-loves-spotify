@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Cookie;
 use Services\DiscogsService as Discogs;
 use Services\SpotifyService as Spotify;
 
@@ -26,27 +27,29 @@ class SiteController extends Controller
         $this->discogs->handleAccessToken();
         $this->spotify->handleCode();
 
-        $album_ids = [];
-        $artist_ids = [];
+        $spotify_ids = [];
         $albums = $this->discogs->getUserAlbums();
 
-        $counter = 0;
-        foreach($albums as $album) {
-            $search = $this->spotify->searchAlbums($album);
+        $spotify_ids = $this->spotify->getAlbumAndArtistIds($albums);
 
-            if(isset($search[0])) {
-                $album_ids[] = $search[0]['id'];
-                $artist_ids[] = $search[0]['artists'][0]['id'];
-            }
+        $albums = array_chunk(array_unique($spotify_ids['albums']), 50);
+        $artists = array_chunk(array_unique($spotify_ids['artists']), 50);
+
+        var_export($albums);
+        var_export($artists);
+
+        die();
+
+        foreach ($albums as $album_chunk) {
+            $this->spotify->saveAlbumsToLibrary($album_chunk);
 
             sleep(1);
         }
 
-        print_r($album_ids);
-        print_r($artist_ids);
         die();
 
-        // $username = $this->discogs->getUserName();
+        $username = '';
+        $username = $this->discogs->getUserName();
         // print_r($this->spotify->getAlbums());
         // die();
 

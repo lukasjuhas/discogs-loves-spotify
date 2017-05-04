@@ -214,8 +214,8 @@ class DiscogsService
             }
             foreach ($collection['releases'] as $key => $release) :
                 $albums[$generalKey]['title'] = $release['basic_information']['title'];
-                $albums[$generalKey]['artist'] = $release['basic_information']['artists'][0]['name'];
-                $generalKey++;
+            $albums[$generalKey]['artist'] = $release['basic_information']['artists'][0]['name'];
+            $generalKey++;
             endforeach;
         }
 

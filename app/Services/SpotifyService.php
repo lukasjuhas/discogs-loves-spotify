@@ -181,7 +181,7 @@ class SpotifyService
         $ids = $album_chunk;
 
         // if array given, make it commma separated sring
-        if(is_array($album_chunk)) {
+        if (is_array($album_chunk)) {
             $ids = implode(',', $album_chunk);
         }
 
