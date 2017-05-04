@@ -3,8 +3,6 @@
 namespace Services;
 
 use GuzzleHttp\Client;
-// use GuzzleHttp\HandlerStack;
-// use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
@@ -148,6 +146,59 @@ class SpotifyService
 
         $response = $this->prase_reponse($request);
         return isset($response['items']) ? $response['items'] : $response;
+    }
+
+    /**
+     * get spotify album and artist ids from (discogs) albums
+     * @param  array  $albums
+     * @return array
+     */
+    public function getAlbumAndArtistIds($albums = [])
+    {
+        if (!$albums) {
+            return false;
+        }
+
+        $spotify_ids = [];
+
+        foreach ($albums as $album) {
+            $search = $this->searchAlbums($album);
+
+            if (isset($search[0])) {
+                $spotify_ids['albums'][] = $search[0]['id'];
+                $spotify_ids['artists'][] = $search[0]['artists'][0]['id'];
+            }
+
+            // play nicely with rate limitation
+            sleep(1);
+        }
+
+        return $spotify_ids;
+    }
+
+    public function saveAlbumsToLibrary($album_chunk)
+    {
+        $ids = $album_chunk;
+
+        // if array given, make it commma separated sring
+        if(is_array($album_chunk)) {
+            $ids = implode(',', $album_chunk);
+        }
+
+        $accessToken = $this->handleAccessToken();
+
+        $request = $this->client()->request('PUT', 'v1/me/albums', [
+            'query' => [
+                'ids' => $ids,
+            ],
+            'headers' => [
+                'Authorization' => sprintf('Bearer %s', $accessToken),
+            ]
+        ]);
+
+        $response = $this->prase_reponse($request);
+
+        return $response;
     }
 
     /**
