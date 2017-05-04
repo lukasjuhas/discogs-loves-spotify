@@ -31,7 +31,7 @@ class SpotifyService
     {
         $this->client_id = env('SPOTIFY_CLIENT');
         $this->client_secret = env('SPOTIFY_SECRET');
-        $this->callback_url = env('APP_URL');
+        $this->callback_url = env('SPOTIFY_CALLBACK_URL');
 
         $this->provider = new GenericProvider([
             'clientId'                => $this->client_id,    // The client ID assigned to you by the provider
@@ -43,10 +43,11 @@ class SpotifyService
         ]);
     }
 
-    public function requestToken()
+    public function authorise()
     {
         $authorizationUrl = $this->provider->getAuthorizationUrl();
         $authorizationUrl = $authorizationUrl . '&scope=' . urlencode('user-library-read user-library-modify');
+
         return redirect($authorizationUrl);
     }
 
@@ -67,23 +68,17 @@ class SpotifyService
 
     public function handleAccessToken()
     {
-        // if(!session('spotify.code')) {
-            // $this->requestToken();
-        // }
-
-        $accessToken = $this->getAccessToken();
+        $accessToken = $this->requestToken();
 
         // if access token has expired, refresh it
         if ($accessToken->hasExpired()) {
-            $accessToken = $this->provider->getAccessToken('refresh_token', [
-                'refresh_token' => $accessToken->getRefreshToken()
-            ]);
+            $accessToken = $this->refreshToken();
         }
 
         return $accessToken;
     }
 
-    public function getAccessToken()
+    public function requestToken()
     {
         try {
             // Try to get an access token using the authorization code grant.
@@ -94,8 +89,17 @@ class SpotifyService
             return $accessToken;
         } catch (IdentityProviderException $e) {
             // Failed to get the access token or user details.
-            exit($e->getMessage());
+            dd($e);
         }
+    }
+
+    public function refreshToken()
+    {
+        $accessToken = $this->requestToken();
+
+        return $this->provider->getAccessToken('refresh_token', [
+            'refresh_token' => $accessToken->getRefreshToken()
+        ]);
     }
 
     /**
@@ -105,8 +109,6 @@ class SpotifyService
      */
     public function searchAlbums($album)
     {
-        $accessToken = $this->handleAccessToken();
-
         $query = sprintf('album:%s+artist:%s', $album['title'], $album['artist']);
 
         // search q
@@ -115,9 +117,6 @@ class SpotifyService
                 'q' => $this->formatQuery($query),
                 'type' => 'album'
             ],
-            'headers' => [
-                'Authorization' => sprintf('Bearer %s', $accessToken),
-            ]
         ]);
 
         // parse

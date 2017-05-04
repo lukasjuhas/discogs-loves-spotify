@@ -29,11 +29,11 @@ class SiteController extends Controller
         $album_ids = [];
         $artist_ids = [];
         $albums = $this->discogs->getUserAlbums();
-        // dd($albums);
-        $search = $this->spotify->searchAlbums($albums[10]);
-        dd($search);
+
+        $counter = 0;
         foreach($albums as $album) {
             $search = $this->spotify->searchAlbums($album);
+
             if(isset($search[0])) {
                 $album_ids[] = $search[0]['id'];
                 $artist_ids[] = $search[0]['artists'][0]['id'];
@@ -64,6 +64,18 @@ class SiteController extends Controller
 
     public function spotify()
     {
-        return $this->spotify->requestToken();
+        echo 'spotify';
+    }
+
+    public function spotifyAuthorise()
+    {
+        return $this->spotify->authorise();
+    }
+
+    public function spotifyCallback()
+    {
+        $this->spotify->handleCode();
+        $this->spotify->requestToken();
+        return redirect('/');
     }
 }
