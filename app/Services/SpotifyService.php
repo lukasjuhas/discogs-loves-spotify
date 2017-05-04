@@ -98,27 +98,43 @@ class SpotifyService
         }
     }
 
+    /**
+     * search albums
+     * @param  array $album
+     * @return array
+     */
     public function searchAlbums($album)
     {
         $accessToken = $this->handleAccessToken();
 
-        $query = 'album:' . $album['title'] . ' ' . 'artist:' . $album['artist'];
+        $query = sprintf('album:%s+artist:%s', $album['title'], $album['artist']);
 
+        // search q
         $request = $this->client()->request('GET', 'v1/search', [
             'query' => [
-                'q' => $query,
-                'type' => 'album,artist'
+                'q' => $this->formatQuery($query),
+                'type' => 'album'
             ],
             'headers' => [
                 'Authorization' => sprintf('Bearer %s', $accessToken),
             ]
         ]);
 
+        // parse
         $response = $this->prase_reponse($request);
-        return $response;
-        return count($response['albums']['items']) ? $response['albums']['items'] : [];
+
+        // check if we have items and return
+        $items = count($response['albums']['items']) ? $response['albums']['items'] : [];
+
+        // filter to get albums only (not singles) which is often the case that
+        // single carries same name as album. E.g. Jack White - Lazaretto
+        return $this->filterAlbumsOnly($items);
     }
 
+    /**
+     * get albums
+     * @return array
+     */
     public function getAlbums()
     {
         $accessToken = $this->handleAccessToken();
@@ -192,5 +208,36 @@ class SpotifyService
             return false;
         }
         return json_decode($response->getBody(), true);
+    }
+
+    /**
+     * filter to get albums only
+     * @param  array $records
+     * @return array
+     */
+    private function filterAlbumsOnly($records)
+    {
+        $type = 'album';
+        $items = array_filter($records, function ($var) use ($type) {
+            return ($var['album_type'] == $type);
+        });
+
+        return $items;
+    }
+
+    /**
+     * format query
+     * @param  string $query
+     * @return string
+     */
+    private function formatQuery($query)
+    {
+        // remove some random discogs additions
+        $query = str_replace(' (1)', '', $query);
+        $query = str_replace(' (2)', '', $query);
+
+        // to make sure we don't double "urlencode" which will cause in invalid
+        // query
+        return urldecode($query);
     }
 }
