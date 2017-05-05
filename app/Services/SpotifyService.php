@@ -78,6 +78,7 @@ class SpotifyService
 
     public function requestToken()
     {
+        // dd(session('spotify.code'));
         try {
             // Try to get an access token using the authorization code grant.
             $accessToken = $this->provider->getAccessToken('authorization_code', [

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Cookie;
+use Session;
 use Services\DiscogsService as Discogs;
 use Services\SpotifyService as Spotify;
 
@@ -35,16 +35,10 @@ class SiteController extends Controller
         $albums = array_chunk(array_unique($spotify_ids['albums']), 50);
         $artists = array_chunk(array_unique($spotify_ids['artists']), 50);
 
-        var_export($albums);
-        var_export($artists);
+        Session::put('spotify_albums', $albums);
+        Session::put('spotify_artists', $artists);
 
-        die();
-
-        foreach ($albums as $album_chunk) {
-            $this->spotify->saveAlbumsToLibrary($album_chunk);
-
-            sleep(1);
-        }
+        redirect('/spotify');
 
         die();
 
@@ -67,7 +61,7 @@ class SiteController extends Controller
 
     public function spotify()
     {
-        echo 'spotify';
+
     }
 
     public function spotifyAuthorise()
@@ -79,6 +73,12 @@ class SiteController extends Controller
     {
         $this->spotify->handleCode();
         $this->spotify->requestToken();
-        return redirect('/');
+
+        $albums = Session::get('spotify_albums');
+
+        foreach ($albums as $album_chunk) {
+            $this->spotify->saveAlbumsToLibrary($album_chunk);
+            sleep(1);
+        }
     }
 }
