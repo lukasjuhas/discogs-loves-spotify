@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Session;
+use Cache;
 use Services\DiscogsService as Discogs;
 use Services\SpotifyService as Spotify;
 
 class SiteController extends Controller
 {
+    protected $cache_length = 120; // min
+
     /**
      * constructor
      */
@@ -27,18 +29,27 @@ class SiteController extends Controller
         $this->discogs->handleAccessToken();
         $this->spotify->handleCode();
 
-        $spotify_ids = [];
-        $albums = $this->discogs->getUserAlbums();
+        $albums = Cache::get('spotify_albums');
+        $artists = Cache::get('spotify_artists');
 
-        $spotify_ids = $this->spotify->getAlbumAndArtistIds($albums);
+        // if there are no albums or artists already, get & cache them
+        if (!$albums || !$artists) {
+            $spotify_ids = [];
+            $get_user_albums = $this->discogs->getUserAlbums();
+            $spotify_ids = $this->spotify->getAlbumAndArtistIds($get_user_albums);
 
-        $albums = array_chunk(array_unique($spotify_ids['albums']), 50);
-        $artists = array_chunk(array_unique($spotify_ids['artists']), 50);
+            $get_albums = array_chunk(array_unique($spotify_ids['albums']), 50);
+            $get_artists = array_chunk(array_unique($spotify_ids['artists']), 50);
 
-        Session::put('spotify_albums', $albums);
-        Session::put('spotify_artists', $artists);
+            Cache::put('spotify_albums', $get_albums, $this->cache_length);
+            Cache::put('spotify_artists', $get_artists, $this->cache_length);
 
-        redirect('/spotify');
+            $albums = Cache::get('spotify_albums');
+            $artists = Cache::get('spotify_artists');
+        }
+
+        dd($albums);
+        // redirect('/spotify');
 
         die();
 
