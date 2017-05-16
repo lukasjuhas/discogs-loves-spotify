@@ -1,5 +1,64 @@
 @import './config/variables';
 @import './config/mixins';
+@import './core/reset';
+@import './core/helpers';
+@import './components/header';
+@import './components/footer';
+@import './components/button';
+@import './components/section';
+@import './components/steps';
+@import '../../../node_modules/simple-flexbox-grid/src/grid';
 
-/* inject:imports */
-/* endinject */
+html {
+  background-color: $col-background-dark;
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  background-color: $col-brand;
+  background: linear-gradient( 110deg, #0091E5, #E42149, #FFF146 );
+  position: relative;
+  font-size: 16px;
+  color: $col-text-light;
+  font-family: $base-font-family;
+  line-height: $base-line-height;
+  -webkit-text-size-adjust: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.main {
+  flex: 1 0 auto;
+  // height: 100%;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-image: linear-gradient(180deg, rgba(0,0,0,.3) 0%, $col-background-dark 100%);
+}
+
+h1 {
+  font-size: 48px;
+}
+
+h1,
+h2,
+h3,
+p,
+hr,
+ul {
+  margin-bottom: $base-spacing-unit;
+}
+
+.container--wide {
+  max-width: $grid-large-max-width;
+}

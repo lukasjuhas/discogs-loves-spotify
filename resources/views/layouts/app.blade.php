@@ -10,10 +10,8 @@
         <title>{{ config('app.name', 'Discogs ❤️ Spotify') }}</title>
 
         <style>
-            {!! file_get_contents(public_path('styles/core.css')) !!}
+            {!! file_get_contents(public_path('styles/app.css')) !!}
         </style>
-
-        <link href="{{ asset('styles/app.css') }}" rel="stylesheet">
 
         <script>
             window.Laravel = {!! json_encode([
@@ -24,11 +22,19 @@
 
     <body>
         <div class="overlay"></div>
-        <div class="app">
-
+        <header class="header">
+            <div class="container">
+                <h1>Discogs ❤️ Spotify</h1>
+            </div>
+        </header>
+        <main class="main">
             @yield('content')
-        </div>
-
+        </main>
+        <footer class="footer">
+            <div class="container container--wide">
+                <p>Desclimer: This tool and website does not and will never store any of your information or your music for any purposes. It's build purely for one and only purpose which is making it possible to easily sync your Discogs library with Spotify.</p>
+            </div>
+        </footer>
         <script src="{{ asset('scripts/app.js') }}"></script>
     </body>
 </html>

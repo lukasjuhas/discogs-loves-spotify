@@ -1,9 +1,9 @@
 .section {
-
+  padding: $base-spacing-unit 0;
 }
 
 .section--vcenter {
-  min-height: 100vh;
+  height: 100vh;
   text-align: center;
   white-space: nowrap;
 
@@ -17,6 +17,6 @@
   .content {
     display: inline-block;
     vertical-align: middle;
-    white-space: inherit;
+    white-space: initial;
   }
 }

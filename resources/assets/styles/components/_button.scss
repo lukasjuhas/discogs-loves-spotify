@@ -1,0 +1,53 @@
+button {
+  border: 0 none;
+}
+
+.button {
+  border-radius: $border-radius;
+  border: 0;
+  background-color: $col-brand;
+  font-size: 16px;
+  display: inline-block;
+  color: $col-text;
+  padding: ($base-spacing-unit) ($base-spacing-unit);
+  line-height: 1;
+  cursor: pointer;
+  transition: all $animate linear;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  font-weight: bold;
+
+  &.button--disabled,
+  &:disabled {
+    opacity: .75;
+
+    &.button--loading {
+      opacity: 1;
+    }
+  }
+
+  &:disabled:hover {
+    cursor: not-allowed;
+    box-shadow: 0;
+  }
+
+  &.button--active,
+  &:active,
+  &:hover {
+    color: $col-text;
+    text-decoration: none;
+    background-color: $col-brand;
+  }
+
+  &.button--focus,
+  &:focus {
+    background-color: $col-brand;
+  }
+}
+
+.button--block {
+  display: block;
+  width: 100%;
+}

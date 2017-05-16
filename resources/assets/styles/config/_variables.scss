@@ -2,8 +2,9 @@
  * Colours
  */
 
-$col-brand: #000;
+$col-brand: #FFF;
 $col-text: #2c2c2c;
+$col-text-medium: #999;
 $col-text-light: #FFF;
 $col-background-light: #FFF;
 $col-background-dark: #0e0e0e;
@@ -17,14 +18,7 @@ $col-gradient-3: #FFF146; // yellow
  * Typography
  */
 
-$sans-serif-font-family: 'Helvetica Neue',
-Helvetica,
-Arial,
-sans-serif;
-$serif-font-family: Georgia,
-"Times New Roman",
-Times,
-serif;
+$sans-serif-font-family: -apple-system, Roboto, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", sans-serif;
 $base-font-family: $sans-serif-font-family;
 $base-font-size: 14;
 $base-line-height: 1.5;
@@ -42,8 +36,8 @@ $breakpoints: ( 'lg' '(min-width: ' + $breakpoint-lg + ')', 'md' '(min-width: ' 
 /**
  * Grid
  */
-
-$grid-max-width: 1200px;
+$grid-max-width: 900px;
+$grid-large-max-width: 1200px;
 $grid-columns: 12;
 $grid-gutter: $base-spacing-unit;
 
