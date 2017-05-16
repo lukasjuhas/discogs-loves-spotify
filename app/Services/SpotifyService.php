@@ -2,6 +2,7 @@
 
 namespace Services;
 
+use Cache;
 use GuzzleHttp\Client;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -12,7 +13,7 @@ class SpotifyService
      * base api uri
      * @var string
      */
-    protected $base_api_uri = 'https://api.spotify.com';
+    protected $base_api_uri = 'https://api.spotify.com/v1/';
 
     /**
      * authorize url
@@ -21,6 +22,8 @@ class SpotifyService
     protected $authorize_url = 'https://accounts.spotify.com/authorize';
 
     protected $token_url = 'https://accounts.spotify.com/api/token';
+
+    protected $cache_length = 120; // min
 
     /**
      * constructor
@@ -44,7 +47,7 @@ class SpotifyService
     public function authorise()
     {
         $authorizationUrl = $this->provider->getAuthorizationUrl();
-        $authorizationUrl = $authorizationUrl . '&scope=' . urlencode('user-library-read user-library-modify');
+        $authorizationUrl = $authorizationUrl . '&scope=user-library-read%20user-library-modify';
 
         return redirect($authorizationUrl);
     }
@@ -52,16 +55,10 @@ class SpotifyService
     public function handleCode()
     {
         if (isset($_GET['code'])) {
-            return session([
-                'spotify' => [
-                    'code' => $_GET['code'],
-                ]
-            ]);
-
-            return $_GET['code'];
+            Cache::put('spotify_code', $_GET['code'], $this->cache_length);
         }
 
-        return session('spotify.code');
+        return Cache::get('spotify_code');
     }
 
     public function handleAccessToken()
@@ -78,11 +75,10 @@ class SpotifyService
 
     public function requestToken()
     {
-        // dd(session('spotify.code'));
         try {
             // Try to get an access token using the authorization code grant.
             $accessToken = $this->provider->getAccessToken('authorization_code', [
-                'code' => session('spotify.code'),
+                'code' => Cache::get('spotify_code'),
             ]);
 
             return $accessToken;
@@ -111,7 +107,7 @@ class SpotifyService
         $query = sprintf('album:%s+artist:%s', $album['title'], $album['artist']);
 
         // search q
-        $request = $this->client()->request('GET', 'v1/search', [
+        $request = $this->client()->request('GET', 'search', [
             'query' => [
                 'q' => $this->formatQuery($query),
                 'type' => 'album'
@@ -136,7 +132,7 @@ class SpotifyService
     public function getAlbums()
     {
         $accessToken = $this->handleAccessToken();
-        $request = $this->client()->request('GET', 'v1/me/albums', [
+        $request = $this->client()->request('GET', 'me/albums', [
             'query' => [
               'limit' => 50,
             ],
@@ -186,9 +182,14 @@ class SpotifyService
             $ids = implode(',', $album_chunk);
         }
 
-        $accessToken = $this->handleAccessToken();
+        $code = $this->handleCode();
+        $accessToken = $this->provider->getAccessToken('authorization_code', [
+            'code' => $code,
+        ]);
 
-        $request = $this->client()->request('PUT', 'v1/me/albums', [
+        // dd($accessToken);
+
+        $request = $this->client()->request('PUT', 'me/albums', [
             'query' => [
                 'ids' => $ids,
             ],
@@ -197,9 +198,11 @@ class SpotifyService
             ]
         ]);
 
-        $response = $this->prase_reponse($request);
+        if($request->getStatusCode() == 200) {
+            return true;
+        }
 
-        return $response;
+        return false;
     }
 
     /**

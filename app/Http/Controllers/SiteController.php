@@ -48,15 +48,10 @@ class SiteController extends Controller
             $artists = Cache::get('spotify_artists');
         }
 
-        dd($albums);
-        // redirect('/spotify');
-
-        die();
+        // dd($albums);
 
         $username = '';
-        $username = $this->discogs->getUserName();
-        // print_r($this->spotify->getAlbums());
-        // die();
+        // $username = $this->discogs->getUserName();
 
         return view('home', compact('username'));
     }
@@ -83,9 +78,8 @@ class SiteController extends Controller
     public function spotifyCallback()
     {
         $this->spotify->handleCode();
-        $this->spotify->requestToken();
 
-        $albums = Session::get('spotify_albums');
+        $albums = Cache::get('spotify_albums');
 
         foreach ($albums as $album_chunk) {
             $this->spotify->saveAlbumsToLibrary($album_chunk);
