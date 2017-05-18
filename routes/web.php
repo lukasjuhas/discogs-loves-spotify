@@ -14,6 +14,8 @@
 Route::get('/', 'SiteController@index');
 
 Route::get('/discogs', 'SiteController@discogs');
+Route::get('/discogs/authorise', 'SiteController@discogsAuthorise');
+Route::get('/discogs/callback', 'SiteController@discogsCallback');
 
 Route::get('/spotify', 'SiteController@spotify');
 Route::get('/spotify/authorise', 'SiteController@spotifyAuthorise');

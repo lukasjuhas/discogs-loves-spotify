@@ -21,8 +21,16 @@ class SpotifyService
      */
     protected $authorize_url = 'https://accounts.spotify.com/authorize';
 
+    /**
+     * token url
+     * @var string
+     */
     protected $token_url = 'https://accounts.spotify.com/api/token';
 
+    /**
+     * cache length
+     * @var integer
+     */
     protected $cache_length = 120; // min
 
     /**

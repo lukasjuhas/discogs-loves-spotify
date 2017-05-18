@@ -26,9 +26,14 @@ class SiteController extends Controller
      */
     public function index()
     {
-        $this->discogs->handleAccessToken();
-        $this->spotify->handleCode();
+        $username = '';
+        // $username = $this->discogs->getUserName();
 
+        return view('home', compact('username'));
+    }
+
+    public function discogs()
+    {
         $albums = Cache::get('spotify_albums');
         $artists = Cache::get('spotify_artists');
 
@@ -43,31 +48,29 @@ class SiteController extends Controller
 
             Cache::put('spotify_albums', $get_albums, $this->cache_length);
             Cache::put('spotify_artists', $get_artists, $this->cache_length);
-
-            $albums = Cache::get('spotify_albums');
-            $artists = Cache::get('spotify_artists');
         }
 
-        // dd($albums);
-
-        $username = '';
-        // $username = $this->discogs->getUserName();
-
-        return view('home', compact('username'));
+        return redirect('/');
     }
 
     /**
      * request discogs authentication
      * @return mixed
      */
-    public function discogs()
+    public function discogsAuthorise()
     {
         return $this->discogs->requestToken();
     }
 
+    public function discogsCallback()
+    {
+        $this->discogs->handleAccessToken();
+
+        return redirect('/');
+    }
+
     public function spotify()
     {
-
     }
 
     public function spotifyAuthorise()

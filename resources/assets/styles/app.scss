@@ -46,6 +46,10 @@ body {
   background-image: linear-gradient(180deg, rgba(0,0,0,.3) 0%, $col-background-dark 100%);
 }
 
+strong {
+  font-weight: bold;
+}
+
 h1 {
   font-size: 48px;
 }
@@ -61,4 +65,8 @@ ul {
 
 .container--wide {
   max-width: $grid-large-max-width;
+}
+
+.form__group {
+  margin-bottom: $base-spacing-unit;
 }
