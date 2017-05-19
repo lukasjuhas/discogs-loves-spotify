@@ -26,9 +26,10 @@ class SiteController extends Controller
      */
     public function index()
     {
-        $username = $this->discogs->getUserName();
+        $spotifyUsername = $this->spotify->getUserName();
+        $discogsUsername = $this->discogs->getUserName();
 
-        return view('home', compact('username'));
+        return view('home', compact('discogsUsername', 'spotifyUsername'));
     }
 
 
@@ -84,6 +85,14 @@ class SiteController extends Controller
 
     public function spotify()
     {
+        $albums = Cache::get('spotify_albums');
+
+        foreach ($albums as $album_chunk) {
+            $this->spotify->saveAlbumsToLibrary($album_chunk);
+            sleep(1); // play nice with request limiting
+        }
+
+        return redirect('/');
     }
 
     /**
@@ -102,11 +111,64 @@ class SiteController extends Controller
     {
         $this->spotify->handleCode();
 
-        $albums = Cache::get('spotify_albums');
+        return redirect('/');
+    }
 
-        foreach ($albums as $album_chunk) {
-            $this->spotify->saveAlbumsToLibrary($album_chunk);
-            sleep(1);
+    public function sync(Request $request)
+    {
+        $sync_albums = $request->get('albums') ? true : false;
+        $sync_artists = $request->get('artists') ? true : false;
+
+        $discogs = $this->handleDiscogs();
+
+        if($sync_albums) {
+            $albums = $discogs['albums'];
+            foreach ($albums as $album_chunk) {
+                $this->spotify->saveAlbumsToLibrary($album_chunk);
+                sleep(1); // play nice with request limiting
+            }
         }
+
+        if($sync_artists) {
+            $artists = $discogs['artists'];
+            foreach ($artists as $artist_chunk) {
+                $this->spotify->followArtists($artist_chunk);
+                sleep(1); // play nice with request limiting
+            }
+        }
+
+        return redirect('/')->with('flash', [
+            'type' => 'success',
+            'message' => 'Succesfully synced!',
+        ]);
+    }
+
+    /**
+     * handle discogs
+     * @return array
+     */
+    private function handleDiscogs()
+    {
+        $discogs = [];
+        $albums = Cache::get('spotify_albums');
+        $artists = Cache::get('spotify_artists');
+
+        // if there are no albums or artists already, get & cache them
+        if (!$albums || !$artists) {
+            $spotify_ids = [];
+            $get_user_albums = $this->discogs->getUserAlbums();
+            $spotify_ids = $this->spotify->getAlbumAndArtistIds($get_user_albums);
+
+            $get_albums = array_chunk(array_unique($spotify_ids['albums']), 50);
+            $get_artists = array_chunk(array_unique($spotify_ids['artists']), 50);
+
+            $albums = Cache::put('spotify_albums', $get_albums, $this->cache_length);
+            $artists = Cache::put('spotify_artists', $get_artists, $this->cache_length);
+        }
+
+        $discogs['albums'] = $albums;
+        $discogs['artists'] = $artists;
+
+        return $discogs;
     }
 }

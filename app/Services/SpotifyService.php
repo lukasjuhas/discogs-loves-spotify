@@ -55,7 +55,7 @@ class SpotifyService
     public function authorise()
     {
         $authorizationUrl = $this->provider->getAuthorizationUrl();
-        $authorizationUrl = $authorizationUrl . '&scope=user-library-read%20user-library-modify';
+        $authorizationUrl = $authorizationUrl . '&scope=user-library-read%20user-library-modify%20user-follow-modify';
 
         return redirect($authorizationUrl);
     }
@@ -64,6 +64,7 @@ class SpotifyService
     {
         if (isset($_GET['code'])) {
             Cache::put('spotify_code', $_GET['code'], $this->cache_length);
+            $this->requestToken();
         }
 
         return Cache::get('spotify_code');
@@ -71,7 +72,7 @@ class SpotifyService
 
     public function handleAccessToken()
     {
-        $accessToken = $this->requestToken();
+        $accessToken = Cache::get('spotify_access_token');
 
         // if access token has expired, refresh it
         if ($accessToken->hasExpired()) {
@@ -89,16 +90,17 @@ class SpotifyService
                 'code' => Cache::get('spotify_code'),
             ]);
 
+            Cache::put('spotify_access_token', $accessToken, $this->cache_length);
+
             return $accessToken;
         } catch (IdentityProviderException $e) {
-            // Failed to get the access token or user details.
-            dd($e);
+
         }
     }
 
     public function refreshToken()
     {
-        $accessToken = $this->requestToken();
+        $accessToken = Cache::get('spotify_access_token');
 
         return $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $accessToken->getRefreshToken()
@@ -153,6 +155,24 @@ class SpotifyService
         return isset($response['items']) ? $response['items'] : $response;
     }
 
+    public function getUserName()
+    {
+        $accessToken = Cache::get('spotify_access_token');
+        if(!$accessToken) {
+            return false;
+        }
+
+        $request = $this->client()->request('GET', 'me', [
+            'headers' => [
+                'Authorization' => sprintf('Bearer %s', $accessToken),
+            ]
+        ]);
+
+        $response = $this->prase_reponse($request);
+
+        return isset($response['id']) ? $response['id'] : false;
+    }
+
     /**
      * get spotify album and artist ids from (discogs) albums
      * @param  array  $albums
@@ -190,15 +210,38 @@ class SpotifyService
             $ids = implode(',', $album_chunk);
         }
 
-        $code = $this->handleCode();
-        $accessToken = $this->provider->getAccessToken('authorization_code', [
-            'code' => $code,
-        ]);
-
-        // dd($accessToken);
+        $accessToken = Cache::get('spotify_access_token');
 
         $request = $this->client()->request('PUT', 'me/albums', [
             'query' => [
+                'ids' => $ids,
+            ],
+            'headers' => [
+                'Authorization' => sprintf('Bearer %s', $accessToken),
+            ]
+        ]);
+
+        if($request->getStatusCode() == 200) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function followArtists($artists_chunk)
+    {
+        $ids = $artists_chunk;
+
+        // if array given, make it commma separated sring
+        if (is_array($artists_chunk)) {
+            $ids = implode(',', $artists_chunk);
+        }
+
+        $accessToken = Cache::get('spotify_access_token');
+
+        $request = $this->client()->request('PUT', 'me/following', [
+            'query' => [
+                'type' => 'artist',
                 'ids' => $ids,
             ],
             'headers' => [

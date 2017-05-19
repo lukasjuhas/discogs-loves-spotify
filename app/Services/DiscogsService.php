@@ -170,9 +170,16 @@ class DiscogsService
      */
     public function getUserName()
     {
+        $token = Cache::get('discogs_oauth_token');
+        $token_secret = Cache::get('discogs_oauth_token_secret');
+
+        if(!$token || !$token_secret) {
+            return false;
+        }
+
         $response = $this->client([
-            'token' => Cache::get('discogs_oauth_token'),
-            'token_secret' => Cache::get('discogs_oauth_token_secret'),
+            'token' => $token,
+            'token_secret' => $token_secret,
         ])->request('GET', 'oauth/identity', [
             'auth' => 'oauth',
         ]);

@@ -20,3 +20,5 @@ Route::get('/discogs/callback', 'SiteController@discogsCallback');
 Route::get('/spotify', 'SiteController@spotify');
 Route::get('/spotify/authorise', 'SiteController@spotifyAuthorise');
 Route::get('/spotify/callback', 'SiteController@spotifyCallback');
+
+Route::post('/sync', 'SiteController@sync');
