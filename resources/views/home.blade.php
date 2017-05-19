@@ -4,16 +4,26 @@
     <section class="section">
         <div class="content">
             <div class="container">
-                {{ $username }}
                 <p>Sync your Discogs collection with Spotify. This tool searches goes through your vinyl collection and saves every record that is available on Spotify to your library.</p>
             </div>
             <nav class="steps">
                 <ul>
                     <li class="steps__item steps__item--discogs">
-                        <a class="step__item__link" href="{{ url('discogs/authorise') }}">
+                        @if($username)
+                            <div class="step__item__link">
+                        @else
+                            <a class="step__item__link" href="{{ url('discogs/authorise') }}">
+                        @endif
                             <p><strong>1. Connect to Discogs</strong></p>
-                            {!! file_get_contents(public_path('images/discogs.svg')) !!}
-                        </a>
+                            <p>{!! file_get_contents(public_path('images/discogs.svg')) !!}</p>
+                            @if($username)
+                                <p>✅ Signed in as {{ $username }}.</p>
+                            @endif
+                        @if($username)
+                            </div>
+                        @else
+                            </a>
+                        @endif
                     </li>
                     <li class="steps__item steps__item--spotify">
                         <a class="step__item__link" href="{{ url('spotify/authorise') }}">

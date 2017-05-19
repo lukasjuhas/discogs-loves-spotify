@@ -32,7 +32,7 @@
         </main>
         <footer class="footer">
             <div class="container container--wide">
-                <p>Desclimer: This tool and website does not and will never store any of your information or your music for any purposes. It's build purely for one and only purpose which is making it possible to easily sync your Discogs library with Spotify.</p>
+                <p>Desclimer: This tool and website does not and will never store any of your information or your music for any purposes in order to make profit. It's build purely for one and only purpose which is making it possible to easily sync your Discogs library with Spotify.</p>
             </div>
         </footer>
         <script src="{{ asset('scripts/app.js') }}"></script>

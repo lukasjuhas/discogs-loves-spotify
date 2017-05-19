@@ -179,7 +179,7 @@ class DiscogsService
 
         $parsedResponse = $this->parse_response($response);
 
-        return $parsedResponse['username'];
+        return isset($parsedResponse['username']) ? $parsedResponse['username'] : false;
     }
 
     /**
