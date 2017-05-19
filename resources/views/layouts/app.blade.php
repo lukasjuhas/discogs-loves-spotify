@@ -5,10 +5,24 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="canonical" href="{{ url('/') }}">
+        <title>{{ config('app.name', 'Discogs ❤️ Spotify') }} - Sync your Discogs collection with your Spotify library.</title>
 
-        <title>{{ config('app.name', 'Discogs ❤️ Spotify') }}</title>
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="@itslukasjuhas">
+        <meta name="twitter:domain" content="itsluk.as">
+        <meta name="twitter:creator" content="@itslukasjuhas">
+        <meta name="twitter:title" content="{{ config('app.name', 'Discogs ❤️ Spotify') }}">
+        <meta name="twitter:image" content="/icon.png">
+
+        <link rel="shortcut icon" href="/icon.png">
+        <link rel="apple-touch-icon-precomposed" href="/icon.png">
+        <meta name="apple-mobile-web-app-title" content="Discogs ❤️ Spotify">
+        <meta name="description" content="Sync your Discogs collection with your Spotify library.">
+        <link rel="canonical" href="{{ url('/') }}">
+        <meta name="theme-color" content="#C81F40">
+        <link rel="manifest" href="/manifest.json">
+
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <style>
             {!! file_get_contents(public_path('styles/app.css')) !!}
@@ -35,7 +49,9 @@
             <div class="container container--wide">
                 <p>Desclimer: This tool and website does not and will never store any of your information or your music for any purposes in order to make profit. It's build purely for one and only purpose which is making it possible to easily sync your Discogs library with Spotify.</p>
             </div>
+            <div>
+                <p>by <a href="https://itsluk.as" target="_blank" rel="noopener">Lukas Juhas</a>. Source code on <a href="https://github.com/lukasjuhas/discogs-loves-spotify">Github</a>.</p>
+            </div>
         </footer>
-        <script src="{{ asset('scripts/app.js') }}"></script>
     </body>
 </html>

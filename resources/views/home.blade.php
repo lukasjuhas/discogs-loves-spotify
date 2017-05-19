@@ -4,7 +4,7 @@
     <section class="section">
         <div class="content">
             <div class="container">
-                <p>Sync your Discogs collection with Spotify. This tool searches goes through your vinyl collection and saves every record that is available on Spotify to your library.</p>
+                <p>Sync your Discogs collection with your Spotify library. This tool goes through your vinyl collection and saves every record and follows every artist that is available on Spotify.</p>
             </div>
             <form action="{{ url('/sync') }}" method="POST">
                 {{ csrf_field() }}
@@ -68,8 +68,7 @@
                 </nav>
             </form>
         </div>
-        <a class="twitter-share-button"
-          href="https://twitter.com/intent/tweet?text=Discogs+%E2%9D%A4%EF%B8%8F++Spotify+-+Sync+your+discogs+collection+with+Spotify+library.">
-        Tweet</a>
+        <a target="_blank" title="Share on Twitter" class="twitter-share-button" href="https://twitter.com/intent/tweet?text=Discogs+%E2%9D%A4%EF%B8%8F++Spotify+-+Sync+your+Discogs+collection+with+your+Spotify+library.+%23DiscogsLovesSpotify">
+        {!! file_get_contents(public_path('images/twitter.svg')) !!}</a>
     </section>
 @endsection
