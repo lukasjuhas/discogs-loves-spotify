@@ -157,11 +157,11 @@ class SiteController extends Controller
             $get_user_albums = $this->discogs->getUserAlbums();
             $spotify_ids = $this->spotify->getAlbumAndArtistIds($get_user_albums);
 
-            $get_albums = array_chunk(array_unique($spotify_ids['albums']), 50);
-            $get_artists = array_chunk(array_unique($spotify_ids['artists']), 50);
+            $albums = array_chunk(array_unique($spotify_ids['albums']), 50);
+            $artists = array_chunk(array_unique($spotify_ids['artists']), 50);
 
-            $albums = Session::put('spotify_albums', $get_albums);
-            $artists = Session::put('spotify_artists', $get_artists);
+            Session::put('spotify_albums', $albums);
+            Session::put('spotify_artists', $artists);
         }
 
         $discogs['albums'] = $albums;
