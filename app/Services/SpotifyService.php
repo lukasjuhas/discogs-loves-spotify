@@ -52,6 +52,10 @@ class SpotifyService
         ]);
     }
 
+    /**
+     * authorise
+     * @return redirect
+     */
     public function authorise()
     {
         $authorizationUrl = $this->provider->getAuthorizationUrl();
@@ -60,6 +64,10 @@ class SpotifyService
         return redirect($authorizationUrl);
     }
 
+    /**
+     * handle code on callback
+     * @return string
+     */
     public function handleCode()
     {
         if (isset($_GET['code'])) {
@@ -70,6 +78,10 @@ class SpotifyService
         return Cache::get('spotify_code');
     }
 
+    /**
+     * handle access token, if expired, refresh it
+     * @return string
+     */
     public function handleAccessToken()
     {
         $accessToken = Cache::get('spotify_access_token');
@@ -82,6 +94,10 @@ class SpotifyService
         return $accessToken;
     }
 
+    /**
+     * request access token
+     * @return object
+     */
     public function requestToken()
     {
         try {
@@ -98,6 +114,10 @@ class SpotifyService
         }
     }
 
+    /**
+     * refresh access token
+     * @return object
+     */
     public function refreshToken()
     {
         $accessToken = Cache::get('spotify_access_token');
@@ -155,10 +175,18 @@ class SpotifyService
         return isset($response['items']) ? $response['items'] : $response;
     }
 
+    /**
+     * get username if available
+     * @return mixed
+     */
     public function getUserName()
     {
         $accessToken = Cache::get('spotify_access_token');
         if(!$accessToken) {
+            return false;
+        }
+
+        if ($accessToken->hasExpired()) {
             return false;
         }
 
@@ -201,6 +229,11 @@ class SpotifyService
         return $spotify_ids;
     }
 
+    /**
+     * save albums to library
+     * @param  array $album_chunk
+     * @return mixed
+     */
     public function saveAlbumsToLibrary($album_chunk)
     {
         $ids = $album_chunk;
@@ -228,6 +261,11 @@ class SpotifyService
         return false;
     }
 
+    /**
+     * follow artists
+     * @param  array $artists_chunk
+     * @return mixed
+     */
     public function followArtists($artists_chunk)
     {
         $ids = $artists_chunk;
