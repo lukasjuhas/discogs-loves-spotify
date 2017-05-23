@@ -6,6 +6,8 @@ use Session;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\RequestException;
 
 class DiscogsService
 {
@@ -171,12 +173,16 @@ class DiscogsService
             return false;
         }
 
-        $response = $this->client([
-            'token' => $token,
-            'token_secret' => $token_secret,
-        ])->request('GET', 'oauth/identity', [
-            'auth' => 'oauth',
-        ]);
+        try {
+            $response = $this->client([
+                'token' => $token,
+                'token_secret' => $token_secret,
+            ])->request('GET', 'oauth/identity', [
+                'auth' => 'oauth',
+            ]);
+        } catch (RequestException $e) {
+            return false;
+        }
 
         $parsedResponse = $this->parse_response($response);
 
