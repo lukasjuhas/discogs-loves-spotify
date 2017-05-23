@@ -62,7 +62,7 @@
                             </a>
                         </li>
                         <li class="steps__item">
-                            <button type="submit"  class="button button--block" @if(!$spotifyUsername && !$discogsUsername) disabled="disabled" @endif>Sync Now 🚀</button>
+                            <button type="submit" onClick="this.disabled=true; this.innerHTML='Syncing...';" class="button button--block" @if(!$spotifyUsername && !$discogsUsername) disabled="disabled" @endif>Sync Now 🚀</button>
                         </li>
                     </ul>
                 </nav>
