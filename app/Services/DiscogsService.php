@@ -2,7 +2,7 @@
 
 namespace Services;
 
-use Cache;
+use Session;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
@@ -34,12 +34,6 @@ class DiscogsService
     protected $access_token_url = 'https://api.discogs.com/oauth/access_token';
 
     /**
-     * cache length
-     * @var integer
-     */
-    protected $cache_length = 120; // min
-
-    /**
      * constructor
      */
     public function __construct()
@@ -64,7 +58,7 @@ class DiscogsService
 
         $response = $this->client([
             'token' => $oauth_token,
-            'token_secret' => Cache::get('discogs_oauth_token_secret'),
+            'token_secret' => Session::get('discogs_oauth_token_secret'),
             'verifier' => $oauth_verifier,
         ])->request('POST', 'oauth/access_token', [
             'auth' => 'oauth',
@@ -74,8 +68,8 @@ class DiscogsService
         parse_str($response->getBody(), $params);
 
         if ($params) {
-            Cache::put('discogs_oauth_token', $params['oauth_token'], $this->cache_length);
-            Cache::put('discogs_oauth_token_secret', $params['oauth_token_secret'], $this->cache_length);
+            Session::put('discogs_oauth_token', $params['oauth_token']);
+            Session::put('discogs_oauth_token_secret', $params['oauth_token_secret']);
         }
 
         return redirect($this->callback_url);
@@ -98,8 +92,8 @@ class DiscogsService
         $params = [];
         parse_str($response->getBody(), $params);
 
-        Cache::put('discogs_oauth_token', $params['oauth_token'], $this->cache_length);
-        Cache::put('discogs_oauth_token_secret', $params['oauth_token_secret'], $this->cache_length);
+        Session::put('discogs_oauth_token', $params['oauth_token']);
+        Session::put('discogs_oauth_token_secret', $params['oauth_token_secret']);
 
         return redirect($this->authorize_url . '?oauth_token=' . $params['oauth_token']);
     }
@@ -170,8 +164,8 @@ class DiscogsService
      */
     public function getUserName()
     {
-        $token = Cache::get('discogs_oauth_token');
-        $token_secret = Cache::get('discogs_oauth_token_secret');
+        $token = Session::get('discogs_oauth_token');
+        $token_secret = Session::get('discogs_oauth_token_secret');
 
         if(!$token || !$token_secret) {
             return false;
@@ -196,8 +190,8 @@ class DiscogsService
     private function userCollection($page = 1)
     {
         $response = $this->client([
-            'token' => Cache::get('discogs_oauth_token'),
-            'token_secret' => Cache::get('discogs_oauth_token_secret'),
+            'token' => Session::get('discogs_oauth_token'),
+            'token_secret' => Session::get('discogs_oauth_token_secret'),
         ])->request('GET', 'users/' . $this->getUserName() . '/collection', [
             'auth' => 'oauth',
             'query' => [

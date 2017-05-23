@@ -2,7 +2,7 @@
 
 namespace Services;
 
-use Cache;
+use Session;
 use GuzzleHttp\Client;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -26,12 +26,6 @@ class SpotifyService
      * @var string
      */
     protected $token_url = 'https://accounts.spotify.com/api/token';
-
-    /**
-     * cache length
-     * @var integer
-     */
-    protected $cache_length = 120; // min
 
     /**
      * constructor
@@ -71,11 +65,11 @@ class SpotifyService
     public function handleCode()
     {
         if (isset($_GET['code'])) {
-            Cache::put('spotify_code', $_GET['code'], $this->cache_length);
+            Session::put('spotify_code', $_GET['code']);
             $this->requestToken();
         }
 
-        return Cache::get('spotify_code');
+        return Session::get('spotify_code');
     }
 
     /**
@@ -84,7 +78,7 @@ class SpotifyService
      */
     public function handleAccessToken()
     {
-        $accessToken = Cache::get('spotify_access_token');
+        $accessToken = Session::get('spotify_access_token');
 
         // if access token has expired, refresh it
         if ($accessToken->hasExpired()) {
@@ -103,10 +97,10 @@ class SpotifyService
         try {
             // Try to get an access token using the authorization code grant.
             $accessToken = $this->provider->getAccessToken('authorization_code', [
-                'code' => Cache::get('spotify_code'),
+                'code' => Session::get('spotify_code'),
             ]);
 
-            Cache::put('spotify_access_token', $accessToken, $this->cache_length);
+            Session::put('spotify_access_token', $accessToken);
 
             return $accessToken;
         } catch (IdentityProviderException $e) {
@@ -120,7 +114,7 @@ class SpotifyService
      */
     public function refreshToken()
     {
-        $accessToken = Cache::get('spotify_access_token');
+        $accessToken = Session::get('spotify_access_token');
 
         return $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $accessToken->getRefreshToken()
@@ -181,7 +175,7 @@ class SpotifyService
      */
     public function getUserName()
     {
-        $accessToken = Cache::get('spotify_access_token');
+        $accessToken = Session::get('spotify_access_token');
         if(!$accessToken) {
             return false;
         }
@@ -243,7 +237,7 @@ class SpotifyService
             $ids = implode(',', $album_chunk);
         }
 
-        $accessToken = Cache::get('spotify_access_token');
+        $accessToken = Session::get('spotify_access_token');
 
         $request = $this->client()->request('PUT', 'me/albums', [
             'query' => [
@@ -275,7 +269,7 @@ class SpotifyService
             $ids = implode(',', $artists_chunk);
         }
 
-        $accessToken = Cache::get('spotify_access_token');
+        $accessToken = Session::get('spotify_access_token');
 
         $request = $this->client()->request('PUT', 'me/following', [
             'query' => [

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Cache;
+use Session;
 use Services\DiscogsService as Discogs;
 use Services\SpotifyService as Spotify;
 
 class SiteController extends Controller
 {
-    protected $cache_length = 120; // min
-
     /**
      * constructor
      */
@@ -44,10 +42,10 @@ class SiteController extends Controller
             return redirect('/discogs/authorise');
         }
 
-        $albums = Cache::get('spotify_albums');
-        $artists = Cache::get('spotify_artists');
+        $albums = Session::get('spotify_albums');
+        $artists = Session::get('spotify_artists');
 
-        // if there are no albums or artists already, get & cache them
+        // if there are no albums or artists already, get & save them in to session
         if (!$albums || !$artists) {
             $spotify_ids = [];
             $get_user_albums = $this->discogs->getUserAlbums();
@@ -56,8 +54,8 @@ class SiteController extends Controller
             $get_albums = array_chunk(array_unique($spotify_ids['albums']), 50);
             $get_artists = array_chunk(array_unique($spotify_ids['artists']), 50);
 
-            Cache::put('spotify_albums', $get_albums, $this->cache_length);
-            Cache::put('spotify_artists', $get_artists, $this->cache_length);
+            Session::put('spotify_albums', $get_albums);
+            Session::put('spotify_artists', $get_artists);
         }
 
         return redirect('/');
@@ -85,7 +83,7 @@ class SiteController extends Controller
 
     public function spotify()
     {
-        $albums = Cache::get('spotify_albums');
+        $albums = Session::get('spotify_albums');
 
         foreach ($albums as $album_chunk) {
             $this->spotify->saveAlbumsToLibrary($album_chunk);
@@ -150,10 +148,10 @@ class SiteController extends Controller
     private function handleDiscogs()
     {
         $discogs = [];
-        $albums = Cache::get('spotify_albums');
-        $artists = Cache::get('spotify_artists');
+        $albums = Session::get('spotify_albums');
+        $artists = Session::get('spotify_artists');
 
-        // if there are no albums or artists already, get & cache them
+        // if there are no albums or artists already, get & save them into session
         if (!$albums || !$artists) {
             $spotify_ids = [];
             $get_user_albums = $this->discogs->getUserAlbums();
@@ -162,8 +160,8 @@ class SiteController extends Controller
             $get_albums = array_chunk(array_unique($spotify_ids['albums']), 50);
             $get_artists = array_chunk(array_unique($spotify_ids['artists']), 50);
 
-            $albums = Cache::put('spotify_albums', $get_albums, $this->cache_length);
-            $artists = Cache::put('spotify_artists', $get_artists, $this->cache_length);
+            $albums = Session::put('spotify_albums', $get_albums);
+            $artists = Session::put('spotify_artists', $get_artists);
         }
 
         $discogs['albums'] = $albums;
