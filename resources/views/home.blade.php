@@ -6,7 +6,7 @@
             <div class="container">
                 <p>Sync your Discogs collection with your Spotify library. This tool goes through your vinyl collection and saves every record and follows every artist that is available on Spotify.</p>
             </div>
-            <form action="{{ url('/sync') }}" method="POST">
+            <form action="{{ url('/sync') }}" method="POST" id="sync-form">
                 {{ csrf_field() }}
                 <nav class="steps">
                     <ul>
@@ -62,7 +62,7 @@
                             </a>
                         </li>
                         <li class="steps__item">
-                            <button type="submit" onClick="this.disabled=true; this.innerHTML='Syncing...';" class="button button--block" @if(!$spotifyUsername && !$discogsUsername) disabled="disabled" @endif>Sync Now 🚀</button>
+                            <button type="submit" onClick="this.disabled=true; this.innerHTML='Syncing...'; document.getElementById('sync-form').submit();" class="button button--block" @if(!$spotifyUsername && !$discogsUsername) disabled="disabled" @endif>Sync Now 🚀</button>
                         </li>
                     </ul>
                 </nav>
