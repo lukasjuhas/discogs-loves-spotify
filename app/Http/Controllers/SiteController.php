@@ -119,7 +119,7 @@ class SiteController extends Controller
 
         $discogs = $this->handleDiscogs();
 
-        if($sync_albums) {
+        if($sync_albums && isset($discogs['albums'])) {
             $albums = $discogs['albums'];
             foreach ($albums as $album_chunk) {
                 $this->spotify->saveAlbumsToLibrary($album_chunk);
@@ -127,7 +127,7 @@ class SiteController extends Controller
             }
         }
 
-        if($sync_artists) {
+        if($sync_artists && isset($discogs['artists'])) {
             $artists = $discogs['artists'];
             foreach ($artists as $artist_chunk) {
                 $this->spotify->followArtists($artist_chunk);
@@ -155,7 +155,14 @@ class SiteController extends Controller
         if (!$albums || !$artists) {
             $spotify_ids = [];
             $get_user_albums = $this->discogs->getUserAlbums();
+            if(empty($get_user_albums)) {
+                return $discogs;
+            }
+
             $spotify_ids = $this->spotify->getAlbumAndArtistIds($get_user_albums);
+            if(empty($spotify_ids)) {
+                return $discogs;
+            }
 
             $albums = array_chunk(array_unique($spotify_ids['albums']), 50);
             $artists = array_chunk(array_unique($spotify_ids['artists']), 50);

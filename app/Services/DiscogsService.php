@@ -205,6 +205,8 @@ class DiscogsService
             ]
         ]);
 
+        // dd($response);
+
         return $this->parse_response($response);
     }
 
@@ -216,6 +218,11 @@ class DiscogsService
     {
         $albums = [];
         $collection = $this->userCollection();
+
+        if(empty($collection['releases'])) {
+            return $albums;
+        }
+
         $generalKey = 0;
         for ($k = 0 ; $k < $collection['pagination']['pages']; $k++) {
             if ($k > 0) {
